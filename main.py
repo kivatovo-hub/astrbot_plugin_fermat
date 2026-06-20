@@ -345,13 +345,13 @@ class FermatPlugin(Star):
     # ==================================================================
 
     @filter.llm_tool(name="fermat_sympy_algebra")
-    async def fermat_sympy_algebra(self, event, operation: str, expr: str, syms: Any = None):
+    async def fermat_sympy_algebra(self, event: AstrMessageEvent, operation: str, expr: str, syms: Any = None):
         del event
         return self._summarize(algebra_operation(operation=operation, expr=expr, syms=syms))
 
     @filter.llm_tool(name="fermat_sympy_calculus")
     async def fermat_sympy_calculus(
-        self, event, operation: str, expr: str, sym: str,
+        self, event: AstrMessageEvent, operation: str, expr: str, sym: str,
         n: int = 1, lower: Any = None, upper: Any = None,
         point: Any = 0, direction: str = "+", series_n: int = 6,
     ):
@@ -360,25 +360,25 @@ class FermatPlugin(Star):
             operation, expr, sym, n, lower, upper, point, direction, series_n))
 
     @filter.llm_tool(name="fermat_sympy_equation")
-    async def fermat_sympy_equation(self, event, operation: str, equations: Any, symbols: Any = None):
+    async def fermat_sympy_equation(self, event: AstrMessageEvent, operation: str, equations: Any, symbols: Any = None):
         del event
         return self._summarize(equation_operation(
             operation=operation, equations=equations, symbols=symbols))
 
     @filter.llm_tool(name="fermat_sympy_matrix")
-    async def fermat_sympy_matrix(self, event, operation: str, data: Any):
+    async def fermat_sympy_matrix(self, event: AstrMessageEvent, operation: str, data: Any):
         del event
         return self._summarize(_json_dumps(matrix_operation(operation=operation, data=data)))
 
     @filter.llm_tool(name="fermat_numpy")
-    async def fermat_numpy(self, event, operation: str, a: Any = None, b: Any = None):
+    async def fermat_numpy(self, event: AstrMessageEvent, operation: str, a: Any = None, b: Any = None):
         del event
         return self._summarize(_json_dumps(numerical_operation(
             operation=operation, a=a, b=b)))
 
     @filter.llm_tool(name="fermat_plot_equation")
     async def fermat_plot_equation(
-        self, event, equations: Any, x_min: float = -10.0,
+        self, event: AstrMessageEvent, equations: Any, x_min: float = -10.0,
         x_max: float = 10.0, title: str = "Equation Plot",
     ):
         image = eqn_chart(equations=equations, x_min=x_min, x_max=x_max, title=title)
