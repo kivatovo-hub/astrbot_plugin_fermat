@@ -1,0 +1,1 @@
+"""AstrBot Fermat plugin."""
