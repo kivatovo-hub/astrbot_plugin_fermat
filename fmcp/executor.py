@@ -129,7 +129,7 @@ def execute(code: str, output_dir: Path | None = None) -> dict[str, Any]:
     capture = io.StringIO()
     sys.stdout = capture
 
-    result: dict[str, Any] = {"text": "", "images": [], "error": None}
+    result: dict[str, Any] = {"text": "", "images": [], "titles": [], "error": None}
 
     try:
         plt.close("all")
@@ -139,6 +139,14 @@ def execute(code: str, output_dir: Path | None = None) -> dict[str, Any]:
         for fig_num in plt.get_fignums():
             f = plt.figure(fig_num)
             if f.get_axes():
+                # Extract titles from all axes
+                titles = []
+                for ax in f.get_axes():
+                    t = ax.get_title()
+                    if t:
+                        titles.append(t)
+                result["titles"].append("; ".join(titles) if titles else "")
+
                 buf = io.BytesIO()
                 f.savefig(buf, format="png", dpi=150, bbox_inches="tight")
                 plt.close(f)

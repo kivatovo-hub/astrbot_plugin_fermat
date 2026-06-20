@@ -203,7 +203,11 @@ class FermatPlugin(Star):
             return t
         return t[: self.MAX_CONTEXT_CHARS] + "\n...(已截断)"
 
-    def _img_summary(self, what: str) -> str:
+    def _img_summary(self, what: str, titles: list[str] | None = None) -> str:
+        if titles:
+            real = [t for t in titles if t]
+            if real:
+                return f"[已生成图像: {', '.join(real)}]"
         return f"[已生成图像: {what}]"
 
     def _compute_summary(self, description: str, result: str) -> str:
@@ -234,8 +238,9 @@ class FermatPlugin(Star):
     async def fermat_draw(self, event: AstrMessageEvent, code: str):
         """Draw with Matplotlib. Use for creative/free-form plots (cat, custom chart, etc).
 
-        Libraries pre-imported: plt (matplotlib.pyplot), np (numpy).
+        Libraries pre-imported: plt (matplotlib.pyplot), np (numpy), sin/cos/sqrt etc.
         DO NOT call plt.show() or plt.savefig() — figure captured automatically.
+        IMPORTANT: always set plt.title("...") so the user knows what was drawn.
 
         Args:
             code(string): Matplotlib drawing code.
@@ -245,7 +250,7 @@ class FermatPlugin(Star):
             yield event.plain_result(f"绘图失败：{out['error'].split(chr(10))[-2]}")
             return
         if out["images"]:
-            items = [Comp.Plain(self._img_summary("自定义 Matplotlib 图形"))]
+            items = [Comp.Plain(self._img_summary("自定义 Matplotlib 图形", out.get("titles")))]
             for _, img in out["images"]:
                 items.append(Comp.Image.fromFileSystem(self._save_image(img)))
             yield event.chain_result(items)
@@ -320,7 +325,7 @@ class FermatPlugin(Star):
         if out["images"]:
             what = ", ".join(funcs)
             rng = f"[{x_min}, {x_max}]"
-            items = [Comp.Plain(self._img_summary(f"函数 {what} 在 {rng}"))]
+            items = [Comp.Plain(self._img_summary(f"函数 {what} 在 {rng}", out.get("titles")))]
             for _, img in out["images"]:
                 items.append(Comp.Image.fromFileSystem(self._save_image(img)))
             yield event.chain_result(items)
@@ -436,6 +441,9 @@ class FermatPlugin(Star):
             Comp.Image.fromFileSystem(self._save_image(image)),
         ]
         yield event.chain_result(items)
+
+    async def terminate(self):
+        pass
 
     async def terminate(self):
         pass
