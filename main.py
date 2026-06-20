@@ -293,7 +293,8 @@ class FermatPlugin(Star):
         """
         funcs = [f.strip() for f in expressions.split(",") if f.strip()]
         if not funcs:
-            return "请提供至少一个函数表达式，如 x**2 或 sin(x)"
+            yield event.plain_result("请提供至少一个函数表达式，如 x**2 或 sin(x)")
+            return
 
         code_lines = [
             "import numpy as np",
