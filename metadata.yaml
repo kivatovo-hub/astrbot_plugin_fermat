@@ -1,8 +1,8 @@
 name: astrbot_plugin_fermat
-display_name: Fermat 数学计算
-desc: "数学计算与绘图插件，重构自 abhiphile/fermat-mcp，支持 SymPy、NumPy 和 Matplotlib。"
-short_desc: "在 AstrBot 中进行符号计算、数值计算和函数绘图。"
-version: 0.1.0
+display_name: Fermat 科学计算
+desc: "科学计算与绘图插件，集成 NumPy / SciPy / SymPy / Pandas / Matplotlib。支持函数绘图、符号计算、数值运算、数据分析。"
+short_desc: "在 AstrBot 中进行符号计算、数值计算、数据分析和函数绘图。"
+version: 1.2.0
 author: OpenAI Codex + abhiphile
 repo: "https://github.com/kivatovo-hub/astrbot_plugin_fermat"
 astrbot_version: ">=4.5.7"
