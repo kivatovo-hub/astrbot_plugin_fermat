@@ -222,7 +222,7 @@ class FermatPlugin(Star):
         Use print() to output results.
 
         Args:
-            code: Python code string. Use np.sin(), sympy.diff(), etc.
+            code(string): Python code string. Use np.sin(), sympy.diff(), etc.
         """
         out = execute(code, self.output_dir)
         if out["error"]:
@@ -238,7 +238,7 @@ class FermatPlugin(Star):
         DO NOT call plt.show() or plt.savefig() — figure captured automatically.
 
         Args:
-            code: Matplotlib drawing code.
+            code(string): Matplotlib drawing code.
         """
         out = execute(code, self.output_dir)
         if out["error"]:
@@ -259,7 +259,7 @@ class FermatPlugin(Star):
         Libraries pre-imported: pd (pandas), np (numpy), sp (scipy).
 
         Args:
-            code: Pandas data analysis code.
+            code(string): Pandas data analysis code.
         """
         out = execute(code, self.output_dir)
         if out["error"]:
@@ -285,11 +285,11 @@ class FermatPlugin(Star):
         This is the SIMPLEST drawing tool — just pass the expression string.
 
         Args:
-            expressions: e.g. "x**2" or "x**2, sin(x), cos(x)" for multiple.
-            x_min: Left bound (default -10).
-            x_max: Right bound (default 10).
-            title: Plot title (optional).
-            grid: Show grid (default True).
+            expressions(string): e.g. "x**2" or "x**2, sin(x), cos(x)" for multiple.
+            x_min(number): Left bound (default -10).
+            x_max(number): Right bound (default 10).
+            title(string): Plot title (optional).
+            grid(boolean): Show grid (default True).
         """
         funcs = [f.strip() for f in expressions.split(",") if f.strip()]
         if not funcs:
@@ -332,7 +332,7 @@ class FermatPlugin(Star):
         """Evaluate a math expression numerically.
 
         Args:
-            expression: e.g. "np.sin(np.pi/2)" or "2+3*5"
+            expression(string): e.g. "np.sin(np.pi/2)" or "2+3*5"
         """
         out = execute(f"result = {expression}\nprint(result)", self.output_dir)
         if out["error"]:
@@ -346,6 +346,13 @@ class FermatPlugin(Star):
 
     @filter.llm_tool(name="fermat_sympy_algebra")
     async def fermat_sympy_algebra(self, event: AstrMessageEvent, operation: str, expr: str, syms: Any = None):
+        """Do symbolic algebra: simplify, expand, factor, collect.
+
+        Args:
+            operation(string): One of simplify, expand, factor, collect.
+            expr(string): SymPy expression string, e.g. "(x+1)**2".
+            syms(string): Symbol or symbols (optional).
+        """
         del event
         return self._summarize(algebra_operation(operation=operation, expr=expr, syms=syms))
 
@@ -355,23 +362,56 @@ class FermatPlugin(Star):
         n: int = 1, lower: Any = None, upper: Any = None,
         point: Any = 0, direction: str = "+", series_n: int = 6,
     ):
+        """Do calculus with SymPy: differentiate, integrate, limit, series.
+
+        Args:
+            operation(string): One of diff, integrate, limit, series.
+            expr(string): SymPy expression string.
+            sym(string): Variable name, e.g. "x".
+            n(number): Derivative order (default 1).
+            lower(number): Lower bound for definite integral (optional).
+            upper(number): Upper bound for definite integral (optional).
+            point(number): Limit/series expansion point (default 0).
+            direction(string): Limit direction, + or - (default +).
+            series_n(number): Number of series terms (default 6).
+        """
         del event
         return self._summarize(calculus_operation(
             operation, expr, sym, n, lower, upper, point, direction, series_n))
 
     @filter.llm_tool(name="fermat_sympy_equation")
     async def fermat_sympy_equation(self, event: AstrMessageEvent, operation: str, equations: Any, symbols: Any = None):
+        """Solve equations with SymPy.
+
+        Args:
+            operation(string): One of solve, solveset, linsolve, nonlinsolve.
+            equations(string): Equation string or list of equation strings.
+            symbols(string): Symbol or list of symbols (optional).
+        """
         del event
         return self._summarize(equation_operation(
             operation=operation, equations=equations, symbols=symbols))
 
     @filter.llm_tool(name="fermat_sympy_matrix")
     async def fermat_sympy_matrix(self, event: AstrMessageEvent, operation: str, data: Any):
+        """Do symbolic matrix operations.
+
+        Args:
+            operation(string): One of create, det, inv, rref, eigenvals.
+            data(string): Matrix data, e.g. "1 2; 3 4" or [[1,2],[3,4]].
+        """
         del event
         return self._summarize(_json_dumps(matrix_operation(operation=operation, data=data)))
 
     @filter.llm_tool(name="fermat_numpy")
     async def fermat_numpy(self, event: AstrMessageEvent, operation: str, a: Any = None, b: Any = None):
+        """Do numerical NumPy operations.
+
+        Args:
+            operation(string): e.g. add, mean, det, eig, solve, svd.
+            a(string): First array, matrix, or scalar input.
+            b(string): Second array, matrix, or scalar input (optional).
+        """
         del event
         return self._summarize(_json_dumps(numerical_operation(
             operation=operation, a=a, b=b)))
@@ -381,6 +421,14 @@ class FermatPlugin(Star):
         self, event: AstrMessageEvent, equations: Any, x_min: float = -10.0,
         x_max: float = 10.0, title: str = "Equation Plot",
     ):
+        """Plot mathematical equations and return the image.
+
+        Args:
+            equations(string): Equation string or list of equation strings, e.g. "x**2, sin(x)".
+            x_min(number): Minimum x value (default -10).
+            x_max(number): Maximum x value (default 10).
+            title(string): Plot title (default "Equation Plot").
+        """
         image = eqn_chart(equations=equations, x_min=x_min, x_max=x_max, title=title)
         eqs = equations if isinstance(equations, str) else ", ".join(str(e) for e in equations)
         items = [
